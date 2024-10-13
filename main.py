@@ -5,7 +5,7 @@ import plotly.express as px
 # Load the data
 @st.cache_data
 def load_data():
-    df = pd.read_csv("MiddleEast_2015-2024_Oct04.csv")
+    df = pd.read_csv("https://drive.google.com/file/d/1NK2lojdB-wZjCiBMXWEjBlExmzt49ze5/view?usp=sharing")
     return df
 
 # Main function
