@@ -2,11 +2,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Load the data
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Israel-Palestine.xlsx")
-    return df
+    try:
+        df = pd.read_excel("Israel-Palestine.xlsx")
+        return df
+    except ImportError as e:
+        st.error("Failed to import openpyxl. Please ensure it is installed.")
+        st.stop()
+    except FileNotFoundError:
+        st.error("The file 'Israel-Palestine.xlsx' was not found. Please check the file path.")
+        st.stop()
+
 
 # Main function
 def main():
