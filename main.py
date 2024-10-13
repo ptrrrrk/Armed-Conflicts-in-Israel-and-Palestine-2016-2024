@@ -5,7 +5,7 @@ import plotly.express as px
 # Load the data
 @st.cache_data
 def load_data():
-    df = pd.read_csv("https://drive.google.com/file/d/1NK2lojdB-wZjCiBMXWEjBlExmzt49ze5/view?usp=sharing")
+    df = pd.read_excel("Israel-Palestine.xlsx")
     return df
 
 # Main function
