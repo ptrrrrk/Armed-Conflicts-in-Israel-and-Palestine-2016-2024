@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import seaborn as sns
+from PIL import Image
 
 @st.cache_data
 def load_data():
@@ -15,7 +16,6 @@ def load_data():
     except FileNotFoundError:
         st.error("The file 'Israel-Palestine.xlsx' was not found. Please check the file path.")
         st.stop()
-
 
 def main():
     # Set page configuration to wide mode
@@ -42,9 +42,9 @@ def main():
 
     # Sidebar filter options
     st.sidebar.header("Filter options")
-    country_options = ["Palestine", "Israel", "Both"]
+    country_options = ["Palestine", "Israel", "Israel and Palestine"]
     selected_country = st.sidebar.selectbox("Select Country", options=country_options, index=2)  # Default to "Both"
-    if selected_country == "Both":
+    if selected_country == "Israel and Palestine":
         df = df[df['country'].isin(["Palestine", "Israel"])]
     else:
         df = df[df['country'] == selected_country]
@@ -84,11 +84,22 @@ def main():
     col5.write(f"**Most Frequent Event Type: {most_frequent_event_type}**" if most_frequent_event_type else "No events")  # Empty column
     col6.metric("Total Fatalities", f"{total_fatalities}")
 
-
-
     visualize_data(df)
     st.subheader("Filtered Data")
     st.dataframe(df, use_container_width=True)
+
+    # Add GitHub link and creator info at the bottom of the sidebar
+    # Add GitHub link and creator info at the bottom of the sidebar
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(
+        '<div style="text-align: center;">'
+        '<a href="https://github.com/ptrrrrk/Armed-Conflicts-in-Israel-and-Palestine-2016-2024">'
+        ' '
+        '<img src="https://1000logos.net/wp-content/uploads/2021/05/GitHub-logo.png" width="85" height="60" style="display:inline-block; vertical-align:middle;"/>'
+        '</a><br>'
+        'Made by K. Patrik'
+        '</div>', unsafe_allow_html=True
+    )
 
 
 def visualize_data(df):
@@ -145,8 +156,6 @@ def visualize_data(df):
                               title="Civilian Fatalities by Event Type")
         st.plotly_chart(fig_civilian)
 
-
-
     # Variables list
     with st.expander("See the list of variables with explanation"):
         st.markdown('''
@@ -161,32 +170,29 @@ def visualize_data(df):
             - :red[disorder_type:] Describes the type of disorder, such as "Political violence," "Demonstrations," "Riots," etc.
             - :red[event_type:] General categorization of the event, like "Riots," "Protests," "Violence against civilians," etc.
             - :red[sub_event_type:] Provides further detail about the event type (e.g., "Mob violence," "Violent demonstration").
-            - :red[actor1:] The main actor or group initiating the event (e.g., "Rioters (Palestine)").
-            - :red[assoc_actor_1]: An associated actor working with actor1, if any (e.g., "Muslim Group (Palestine)").
-            - :red[inter1:] Interaction code for actor1, indicating their type or affiliation:
-                For example, "1" could be for state forces, "2" for rebel groups, "3" for militias, etc.
-            - :red[actor2:] The secondary actor involved in the event, often the opposing side or defender (e.g., "Military Forces of Israel (2022-)").
-            - :red[assoc_actor_2:] An associated actor working with actor2, if any.
-            - :red[inter2:] Interaction code for actor2, similar to inter1, indicating their type or affiliation.
-            - :red[interaction:] Describes the type of interaction between actor1 and actor2. It’s a numeric code that combines the types of both actors (e.g., "Rioters-External/Other forces").
-            - :red[civilian_targeting:] Indicates whether civilians were targeted in the event. If civilians are targeted, there may be additional information.
-            - :red[iso:] The ISO country code (e.g., Israel (ISR), Palestine (PSE)).
-            - :red[region:] The geographical region (e.g., "Middle East").
-            - :red[country:] Name of the country related to the event.
-            - :red[admin1:] Administrative region or area in the country.
-            - :red[admin2:] Further administrative region or area in the country.
-            - :red[admin3:] More granular administrative region or area in the country.
-            - :red[location:] Specific location where the event took place (e.g., city or neighborhood).
-            - :red[latitude:] Latitude coordinate for the event location.
-            - :red[longitude:] Longitude coordinate for the event location.
-            - :red[geo_precision:] A measure of how accurately the location is identified (e.g., "Exact," "Approximate").
-            - :red[source:] Data source or reporting entity for the event (e.g., ACLED).
-            - :red[source_scale:] Scale of the source reporting the event (e.g., local, national, international).
-            - :red[notes:] Additional notes or context about the event.
-            - :red[fatalities:] Total number of fatalities reported from the event.
-            - :red[civilian_fatalities:] Number of civilian fatalities reported from the event (if available).
+            - :red[actor1:] The primary party involved in the event (e.g., state actor, rebel group).
+            - :red[assoc_actor_1:] Any associated actor with actor1.
+            - :red[inter1:] Indicates if actor1 is international (1 for yes, 0 for no).
+            - :red[actor2:] The secondary party involved in the event.
+            - :red[assoc_actor_2:] Any associated actor with actor2.
+            - :red[inter2:] Indicates if actor2 is international (1 for yes, 0 for no).
+            - :red[interaction:] Describes the nature of interaction between actors (e.g., confrontational, cooperative).
+            - :red[civilian_targeting:] Indicates if civilians were specifically targeted (1 for yes, 0 for no).
+            - :red[iso:] The ISO code for the country (e.g., "ISR" for Israel).
+            - :red[region:] The broader geographic region of the event (e.g., Middle East).
+            - :red[country:] The country where the event took place.
+            - :red[admin1:] First-level administrative region (e.g., state or province).
+            - :red[admin2:] Second-level administrative region (e.g., district).
+            - :red[admin3:] Third-level administrative region (e.g., municipality).
+            - :red[location:] The specific location of the event.
+            - :red[latitude:] The latitude of the event's location.
+            - :red[longitude:] The longitude of the event's location.
+            - :red[geo_precision:] The precision of the geolocation data (e.g., exact, approximate).
+            - :red[source:] The source of the data entry.
+            - :red[source_scale:] The scale of the source's reporting (e.g., local, national).
+            - :red[notes:] Additional notes or context regarding the event.
+            - :red[fatalities:] The total number of fatalities reported for the event.
         ''')
-
 
 if __name__ == "__main__":
     main()
