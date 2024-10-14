@@ -148,13 +148,29 @@ def visualize_data(df):
     with col2:
         st.plotly_chart(fig_pie_disorder)
 
-    # Bar Chart - Civilian Fatalities by Event Type
-    if 'civilian_fatalities' in df.columns:
-        st.subheader("Civilian Fatalities by Event Type")
-        civilian_fatalities_by_event = df.groupby('event_type')['civilian_fatalities'].sum().reset_index()
-        fig_civilian = px.bar(civilian_fatalities_by_event, x='event_type', y='civilian_fatalities',
-                              title="Civilian Fatalities by Event Type")
-        st.plotly_chart(fig_civilian)
+    # Bar Chart of Fatalities vs. Events by Location
+    st.subheader("Bar Chart of Events and Fatalities by Location")
+    bar_data = df.groupby(['location', 'country']).agg({'event_id_cnty': 'count', 'fatalities': 'sum'}).reset_index()
+    bar_data.rename(columns={'event_id_cnty': 'Event Count'}, inplace=True)  # Rename for clarity
+
+    # Create the bar chart using 'location' for the x-axis with increased size
+    fig_bar = px.bar(bar_data, x='location', y='fatalities', text='Event Count',
+                     title="Bar Chart of Events and Fatalities by Location",
+                     color='country',  # Use 'country' for coloring
+                     color_discrete_map={'Israel': 'blue', 'Palestine': 'red'},  # Specify colors for each country
+                     width=800, height=600)  # Set width and height
+
+    # Customize the layout
+    fig_bar.update_layout(
+        xaxis_title='Location',
+        yaxis_title='Total Fatalities',
+        title_x=0.5,  # Center the title
+        xaxis_tickangle=-45,  # Rotate x-axis labels by 45 degrees
+        legend_title_text='Region',  # Title for the legend
+        legend=dict(x=1, y=1, traceorder='normal', orientation='v')  # Set legend to vertical
+    )
+
+    st.plotly_chart(fig_bar)
 
     # Variables list
     with st.expander("See the list of variables with explanation"):
