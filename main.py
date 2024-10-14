@@ -24,7 +24,7 @@ def main():
 
     st.title("Armed Conflicts in Israel and Palestine (2016-2024)")
     st.markdown("""
-        This interactive data visualization project showcases incidents of armed conflict in Israeli and Palestinian territories. 
+        This interactive data visualization project showcases incidents of armed conflicts in Israeli and Palestinian territories. 
         Since 2016, the occurrence of these conflicts has nearly doubled each year, frequently taking place in densely populated areas. 
         Users can examine patterns in these armed conflicts by using the filters on the right side to see how various factors evolve over time. 
         This project is still under development, and I am continuously working to improve it. 
