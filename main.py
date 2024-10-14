@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from streamlit_pandas_profiling import st_profile_report
 
 @st.cache_data
 def load_data():
@@ -61,6 +62,8 @@ def main():
     df = df[df['disorder_type'].isin(disorder_types) & df['event_type'].isin(event_types)]
 
     # Calculate statistics
+    st_profile_report(pr)
+
     total_events = len(df)
     unique_event_types = df['event_type'].nunique()
     unique_disorder_types = df['disorder_type'].nunique()
