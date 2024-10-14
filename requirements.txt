@@ -3,5 +3,6 @@ pandas
 plotly
 openpyxl
 streamlit-pandas-profiling
-
+seaborn
+PIL
 
