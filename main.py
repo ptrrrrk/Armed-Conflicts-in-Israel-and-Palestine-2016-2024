@@ -54,7 +54,6 @@ def main():
                                        value=(int(years[0]), int(years[-1])))
     df = df[(df['year'] >= selected_years[0]) & (df['year'] <= selected_years[1])]
 
-    # Remove disorder type from the filter
     event_types = st.sidebar.multiselect("Select Event Type", options=df['event_type'].unique(),
                                          default=df['event_type'].unique())
     df = df[df['event_type'].isin(event_types)]
@@ -65,7 +64,6 @@ def main():
     unique_disorder_types = df['disorder_type'].nunique()
     average_events_per_year = total_events / (selected_years[1] - selected_years[0] + 1) if total_events > 0 else 0
     total_fatalities = df['fatalities'].sum() if 'fatalities' in df.columns else None
-    total_civilian_fatalities = df['civilian_fatalities'].sum() if 'civilian_fatalities' in df.columns else None
     most_frequent_event_type = df['event_type'].value_counts().idxmax() if total_events > 0 else None
 
     # Summary Display
@@ -80,22 +78,12 @@ def main():
     col4.metric("Average Events per Year", f"{average_events_per_year:.2f}")
     col5.metric("Total Fatalities", f"{total_fatalities}")
 
-
+    # Display the most frequent event type
     st.write(f"**Most Frequent Event Type: {most_frequent_event_type}**" if most_frequent_event_type else "No events")
 
+    # Visualize data
     visualize_data(df)
-    st.subheader("Filtered Data")
-    st.dataframe(df, use_container_width=True)
 
-    # Add an empty column for the second row
-    st.markdown("---")  # Add a horizontal line separator
-    st.write("")  # This creates an empty line between rows
-
-    col4, col5, col6 = st.columns(3)
-    col4.write(f"**Most Frequent Event Type: {most_frequent_event_type}**" if most_frequent_event_type else "No events")  # Empty column
-    col6.metric("Total Fatalities", f"{total_fatalities}")
-
-    visualize_data(df)
     st.subheader("Filtered Data")
     st.dataframe(df, use_container_width=True)
 
@@ -104,18 +92,15 @@ def main():
     st.sidebar.markdown(
         '<div style="text-align: center;">'
         '<a href="https://github.com/ptrrrrk/Armed-Conflicts-in-Israel-and-Palestine-2016-2024">'
-        ' '
         '<img src="https://1000logos.net/wp-content/uploads/2021/05/GitHub-logo.png" width="100" height="60" style="display:inline-block; vertical-align:middle;"/>'
         '</a><br>'
         'Made by K. Patrik'
         '</div>', unsafe_allow_html=True
     )
 
-
 def visualize_data(df):
     # Map Visualization - Categorize by Event Type
     st.subheader("Incident Locations by Event Type")
-    # Format hover text to include line breaks
     df['hover_text'] = df['location'] + '<br>' + df['event_type'] + '<br>' + df['notes']
 
     fig_map = px.scatter_mapbox(
@@ -145,32 +130,17 @@ def visualize_data(df):
     event_type_count.columns = ['event_type', 'count']
     fig_pie_event = px.pie(event_type_count, names='event_type', values='count', title="Event Types Distribution",
                            width=300, height=300)
-
-    # Display pie chart
     st.plotly_chart(fig_pie_event)
 
     # Bar Chart of Fatalities vs. Events by Location
     st.subheader("Fatalities by Location")
     bar_data = df.groupby(['location', 'country']).agg({'event_id_cnty': 'count', 'fatalities': 'sum'}).reset_index()
-    bar_data.rename(columns={'event_id_cnty': 'Event Count'}, inplace=True)  # Rename for clarity
+    bar_data.rename(columns={'event_id_cnty': 'Event Count'}, inplace=True)
 
-    # Create the bar chart using 'location' for the x-axis with increased size
     fig_bar = px.bar(bar_data, x='location', y='fatalities', text='Event Count',
-                     title="Bar Chart of Events and Fatalities by Location",
-                     color='country',  # Use 'country' for coloring
-                     color_discrete_map={'Israel': 'blue', 'Palestine': 'red'},  # Specify colors for each country
-                     width=800, height=600)  # Set width and height
-
-    # Customize the layout
-    fig_bar.update_layout(
-        xaxis_title='Location',
-        yaxis_title='Total Fatalities',
-        title_x=0.5,  # Center the title
-        xaxis_tickangle=-45,  # Rotate x-axis labels by 45 degrees
-        legend_title_text='Region',  # Title for the legend
-        legend=dict(x=1, y=1, traceorder='normal', orientation='v')  # Set legend to vertical
-    )
-
+                     color='country',
+                     color_discrete_map={'Israel': 'blue', 'Palestine': 'red'},
+                     width=800, height=600)
     st.plotly_chart(fig_bar)
 
     # Variables list
@@ -192,22 +162,20 @@ def visualize_data(df):
             - :red[interaction:] The type of interaction between the actors.
             - :red[civilian_targeting:] Indicates if civilians were targeted during the event.
             - :red[iso:] The ISO country code for the location.
-            - :red[region:] The broader region of the event.
-            - :red[country:] The specific country where the event took place.
-            - :red[admin1:] The first administrative division (e.g., state or province).
-            - :red[admin2:] The second administrative division (e.g., county).
-            - :red[admin3:] The third administrative division (if applicable).
-            - :red[location:] The precise location of the event.
-            - :red[latitude:] The geographical latitude of the event location.
-            - :red[longitude:] The geographical longitude of the event location.
-            - :red[geo_precision:] The precision of the geographical coordinates.
-            - :red[source:] The source of the data for the event.
-            - :red[source_scale:] The scale of the source's data.
-            - :red[notes:] Additional notes or comments regarding the event.
-            - :red[fatalities:] The number of fatalities resulting from the event.
-            - :red[SiND Event ID:] An identifier for the event within the ACLED dataset.
+            - :red[region:] The broader region where the event occurred.
+            - :red[country:] The country where the event took place.
+            - :red[admin1:] The first-level administrative division within the country.
+            - :red[admin2:] The second-level administrative division.
+            - :red[admin3:] The third-level administrative division.
+            - :red[location:] The specific place where the event occurred.
+            - :red[latitude:] The latitude of the event's location.
+            - :red[longitude:] The longitude of the event's location.
+            - :red[geo_precision:] The precision of the geographical data.
+            - :red[source:] The source of the event information.
+            - :red[source_scale:] The scale of the source, indicating its geographic focus.
+            - :red[notes:] Additional details and context about the event.
+            - :red[fatalities:] The number of deaths associated with the event.
         ''')
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
