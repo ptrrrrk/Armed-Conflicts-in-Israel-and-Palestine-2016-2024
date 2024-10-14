@@ -75,8 +75,8 @@ def main():
 
     # Second row of summary statistics
     col4, col5, col6 = st.columns(3)
-    col4.empty()  # Empty column for alignment purposes
-    col5.metric("Total Fatalities", f"{total_fatalities}")
+    col4.metric("Total Fatalities", f"{total_fatalities}")
+    col5.empty()  # Empty column for alignment purposes
     col6.metric("Average Events per Year", f"{average_events_per_year:.2f}")
 
     # Display the most frequent event type
