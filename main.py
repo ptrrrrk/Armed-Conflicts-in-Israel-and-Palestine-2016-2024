@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from streamlit_pandas_profiling import st_profile_report
+from ydata_profiling import ProfileReport
+import streamlit.components.v1 as components
 
 @st.cache_data
 def load_data():
@@ -15,7 +16,6 @@ def load_data():
         st.error("The file 'Israel-Palestine.xlsx' was not found. Please check the file path.")
         st.stop()
 
-
 # Main function
 def main():
     # Set page configuration to wide mode
@@ -23,7 +23,7 @@ def main():
 
     st.title("Armed Conflicts in Israel and Palestine (2016-2024)")
     st.markdown("""
-        **Data Source:** This data is sourced from the Armed Conflict Location & Event Data Project (ACLED) Currated Data Files. 
+        **Data Source:** This data is sourced from the Armed Conflict Location & Event Data Project (ACLED) Curated Data Files. 
         ACLED provides real-time data on political violence and protest events around the world, making it a vital resource for understanding the dynamics of conflict.
         https://acleddata.com/curated-data-files/
         """)
@@ -35,11 +35,11 @@ def main():
     st.sidebar.header("Filter options")
 
     # Country selection
-    country_options = ["Palestine", "Israel", "Both"]
+    country_options = ["Palestine", "Israel", "Israel and Palestine"]
     selected_country = st.sidebar.selectbox("Select Country", options=country_options, index=2)  # Default to "Both"
 
     # Apply the country filter
-    if selected_country == "Both":
+    if selected_country == "Israel and Palestine":
         df = df[df['country'].isin(["Palestine", "Israel"])]
     else:
         df = df[df['country'] == selected_country]
@@ -61,9 +61,15 @@ def main():
     # Apply the filters
     df = df[df['disorder_type'].isin(disorder_types) & df['event_type'].isin(event_types)]
 
-    # Calculate statistics
-    st_profile_report(pr)
+    # Profiling report generation with button and spinner
+    st.subheader("Generate Profiling Report")
+    if st.button("Generate Report"):
+        with st.spinner("Generating profiling report..."):
+            profile = ProfileReport(df, title="Profiling Report", explorative=True)
+            profile_html = profile.to_html()
+            components.html(profile_html, height=1000, scrolling=True)
 
+    # Calculate statistics
     total_events = len(df)
     unique_event_types = df['event_type'].nunique()
     unique_disorder_types = df['disorder_type'].nunique()
@@ -126,7 +132,6 @@ def visualize_data(df):
     fig_pie_disorder = px.pie(disorder_type_count, names='disorder_type', values='count',
                               title="Disorder Types Distribution")
     st.plotly_chart(fig_pie_disorder)
-
 
 if __name__ == "__main__":
     main()
