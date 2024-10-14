@@ -73,10 +73,11 @@ def main():
     col2.metric("Unique Event Types", f"{unique_event_types}", help="Number of distinct types of events")
     col3.metric("Unique Disorder Types", f"{unique_disorder_types}", help="Number of distinct disorder types")
 
-    # Additional Summary Cards
-    col4, col5 = st.columns(2)
-    col4.metric("Average Events per Year", f"{average_events_per_year:.2f}")
+    # Second row of summary statistics
+    col4, col5, col6 = st.columns(3)
+    col4.empty()  # Empty column for alignment purposes
     col5.metric("Total Fatalities", f"{total_fatalities}")
+    col6.metric("Average Events per Year", f"{average_events_per_year:.2f}")
 
     # Display the most frequent event type
     st.write(f"**Most Frequent Event Type: {most_frequent_event_type}**" if most_frequent_event_type else "No events")
